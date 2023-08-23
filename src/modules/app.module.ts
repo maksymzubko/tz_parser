@@ -18,7 +18,7 @@ import { AuthModule } from '@modules/auth.module';
     JwtModule.register({
       global: true,
       secret: process.env.JWT_SECRET,
-      signOptions: { expiresIn: '10m' },
+      signOptions: { expiresIn: '1d' },
     }),
     ScheduleModule.forRoot(),
     ArticleModule,

@@ -72,6 +72,7 @@ export class ArticleController {
   })
   @ApiCreatedResponse({ type: ArticleResponseDto })
   @ApiBadRequestResponse({ type: ResponseDto })
+  @ApiNotFoundResponse({ type: ResponseDto })
   @ApiInternalServerErrorResponse({ type: ResponseDto })
   async createArticle(@Body() body: ArticleRequestDto): Promise<ArticleResponseDto> {
     return await this._articleService.create(body);
@@ -84,6 +85,7 @@ export class ArticleController {
     description: 'Delete article by ID',
   })
   @ApiCreatedResponse({ type: Boolean })
+  @ApiNotFoundResponse({ type: ResponseDto })
   @ApiInternalServerErrorResponse({ type: ResponseDto })
   async deleteArticle(@Param('id') id: number): Promise<boolean> {
     return await this._articleService.delete(id);

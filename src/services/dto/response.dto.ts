@@ -5,5 +5,5 @@ export class ResponseDto {
   timestamp: string;
 
   @ApiProperty({ example: ['Reason'] })
-  message: string[];
+  errors: string[];
 }

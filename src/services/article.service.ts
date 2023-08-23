@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as Parser from 'rss-parser';
-import { Like, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ArticleEntity } from '@entities/Article.entity';
 import { PageDto } from '@services/dto/page/page.dto';
 import { ArticleResponseDto } from '@services/dto/article/response.dto';
@@ -8,6 +8,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CategoryService } from '@services/category.service';
 import { PageMetaDtoArticles } from '@services/dto/article/page-meta.dto';
 import { PageOptionsArticlesDto } from '@services/dto/article/page-options.dto';
+import { ExceptionNotFound } from '@exceptions/http.exceptions';
+import { ArticleRequestDto } from '@services/dto/article/request.dto';
 
 @Injectable()
 export class ArticleService {
@@ -21,22 +23,34 @@ export class ArticleService {
     this._parser = new Parser();
   }
 
+  async getById(id: number): Promise<ArticleEntity | null> {
+    return await this._articleRepository.findOne({ where: { id } });
+  }
+
   async getByLink(link: string): Promise<ArticleEntity | null> {
     return await this._articleRepository.findOneBy({ sourceLink: link });
   }
 
+  async getArticle(id: number): Promise<ArticleResponseDto> {
+    const article = await this._articleRepository.createQueryBuilder('a').leftJoinAndSelect('a.categories', 'c').where(`a.id = :id`, { id }).getOne();
+
+    if (!article) throw new ExceptionNotFound('Article with provided ID not found!');
+
+    return { ...article, categories: [...article.categories.map((c) => c.name)] };
+  }
+
   async getArticles(pageOptionsDto: PageOptionsArticlesDto): Promise<PageDto<ArticleResponseDto, PageMetaDtoArticles>> {
-    const _whereCategory = pageOptionsDto.category ? { categories: { name: pageOptionsDto.category } } : {};
-    const [result, itemCount] = await this._articleRepository.findAndCount({
-      relations: ['categories'],
-      order: { date: { direction: pageOptionsDto.order } },
-      where: [
-        { title: Like(`%${pageOptionsDto.search}%`), ..._whereCategory },
-        { content: Like(`%${pageOptionsDto.search}%`), ..._whereCategory },
-      ],
-      skip: pageOptionsDto.skip,
-      take: pageOptionsDto.take,
-    });
+    const [result, itemCount] = await this._articleRepository
+      .createQueryBuilder('a')
+      .innerJoinAndSelect('a.categories', 'c')
+      .orderBy('a.date', pageOptionsDto.order)
+      .take(pageOptionsDto.take)
+      .skip(pageOptionsDto.skip)
+      .where(`(a.title like :search OR a.content like :search) ${pageOptionsDto.category ? 'AND c.name = :name' : ''}`, {
+        search: pageOptionsDto.search,
+        name: pageOptionsDto.category,
+      })
+      .getManyAndCount();
 
     const transformedData = result.map((r) => {
       return { ...r, categories: [...r.categories.map((c) => c.name)] };
@@ -47,18 +61,44 @@ export class ArticleService {
     return new PageDto(transformedData, pageMetaDto);
   }
 
-  async create(title: string, sourceLink: string, date: number, content: string, image: string, categories: string[]): Promise<ArticleEntity> {
+  async create(body: ArticleRequestDto): Promise<ArticleResponseDto> {
     const newArticle = await this._articleRepository.create({
-      title,
-      date,
-      content,
-      image,
-      sourceLink,
+      ...body,
+      categories: [],
     });
     const createdArticle = await this._articleRepository.save(newArticle);
 
-    createdArticle.categories = await this._categoryService.getCategories(categories);
-    return await this._articleRepository.save(createdArticle);
+    const _uniqArrayCategories = Array.from(new Set(body.categories));
+    createdArticle.categories = await this._categoryService.getCategories(_uniqArrayCategories);
+    const result = await this._articleRepository.save(createdArticle);
+    return { ...result, categories: [...result.categories.map((c) => c.name)] };
+  }
+
+  async update(id: number, body: ArticleRequestDto): Promise<ArticleResponseDto> {
+    let article = await this.getById(id);
+    if (!article) throw new ExceptionNotFound('Article with provided ID not found!');
+
+    const _uniqArrayCategories = Array.from(new Set(body.categories));
+    const categories = await this._categoryService.getCategories(_uniqArrayCategories);
+
+    await this._articleRepository
+      .createQueryBuilder('a')
+      .relation(ArticleEntity, 'categories')
+      .of(article)
+      .addAndRemove(categories, article.categories);
+
+    article = { ...article, ...body, categories };
+
+    const result = await this._articleRepository.save(article);
+    return { ...result, categories: [...result.categories.map((c) => c.name)] };
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const article = await this.getById(id);
+    if (!article) throw new ExceptionNotFound('Article with provided ID not found!');
+
+    await this._articleRepository.remove(article);
+    return true;
   }
 
   // @Cron("30 * * * * *")
@@ -69,7 +109,15 @@ export class ArticleService {
         const { title, categories, link, enclosure, isoDate } = item;
         const article = await this.getByLink(link);
         if (!article) {
-          await this.create(title, link, new Date(isoDate).getTime(), item['content:encodedSnippet'], enclosure?.url, categories);
+          const obj = {
+            title,
+            categories,
+            date: new Date(isoDate).getTime(),
+            content: item['content:encodedSnippet'],
+            image: enclosure?.url,
+            sourceLink: link,
+          } as ArticleRequestDto;
+          await this.create(obj);
         }
       }
     }

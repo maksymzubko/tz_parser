@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import * as process from 'process';
 import { ExceptionUnauthorized } from '@exceptions/http.exceptions';
 import { SKIP_AUTH_KEY } from '@decorators/skip-auth.decorator';
@@ -20,13 +20,34 @@ export class AuthGuard implements CanActivate {
     }
 
     const request = context.switchToHttp().getRequest();
+    const response = context.switchToHttp().getResponse<Response>();
     const token = this.extractTokenFromHeader(request);
     if (!token) {
       throw new ExceptionUnauthorized("Accept only 'Bearer' tokens!");
     }
     try {
-      request['user'] = await this.jwtService.verifyAsync(token, {
-        secret: process.env.JWT_SECRET,
+      request['user'] = new Promise(async (resolve, reject) => {
+        await this.jwtService
+          .verifyAsync(token, {
+            secret: process.env.JWT_SECRET,
+          })
+          .then((res) => resolve(res))
+          .catch((err) => {
+            if (err?.name === 'TokenExpiredError') {
+              const decoded = this.jwtService.decode(token, { json: true });
+              if (decoded['username'] && decoded['sub']) {
+                const newToken = this.jwtService.sign({ username: decoded['username'], sub: decoded['sub'] });
+                response.cookie('access_token_tz_demo', newToken, {
+                  httpOnly: true,
+                  secure: false,
+                  sameSite: 'lax',
+                  expires: new Date(Date.now() + 24 * 60 * 1000),
+                });
+                resolve(decoded);
+              }
+            }
+            reject(err);
+          });
       });
     } catch {
       throw new ExceptionUnauthorized('Incorrect token!');

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import * as Parser from 'rss-parser';
-import { Cron } from "@nestjs/schedule";
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ArticleService {

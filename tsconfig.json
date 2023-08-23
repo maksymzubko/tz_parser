@@ -18,6 +18,7 @@
     "forceConsistentCasingInFileNames": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@src/*": ["./src/*"],
       "@services/*": ["./services/*"],
       "@controllers/*": ["./controllers/*"],
       "@modules/*": ["./modules/*"],
@@ -25,6 +26,7 @@
       "@migrations/*": ["./migrations/*"],
       "@guards/*": ["./guards/*"],
       "@entities/*": ["./entities/*"],
+      "@database/*": ["./database/*"],
       "@filters/*": ["./filters/*"],
       "@decorators/*": ["./decorators/*"],
     },

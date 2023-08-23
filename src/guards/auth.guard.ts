@@ -3,12 +3,15 @@ import { JwtService } from '@nestjs/jwt';
 import { Request } from 'express';
 import * as process from 'process';
 import { ExceptionUnauthorized } from '@exceptions/http.exceptions';
-import { SKIP_AUTH_KEY } from "@decorators/skip-auth.decorator";
-import { Reflector } from "@nestjs/core";
+import { SKIP_AUTH_KEY } from '@decorators/skip-auth.decorator';
+import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-  constructor(private jwtService: JwtService, private reflector: Reflector) {}
+  constructor(
+    private jwtService: JwtService,
+    private reflector: Reflector,
+  ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const isPublic = this.reflector.getAllAndOverride<boolean>(SKIP_AUTH_KEY, [

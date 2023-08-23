@@ -1,11 +1,4 @@
-import {
-  ExceptionFilter,
-  Catch,
-  ArgumentsHost,
-  HttpStatus,
-  Logger,
-  HttpException,
-} from '@nestjs/common';
+import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Logger, HttpException } from '@nestjs/common';
 import { Response } from 'express';
 import { EntityValidationException } from '@exceptions/entity-validation-exception';
 
@@ -23,10 +16,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       errorResult = [HttpStatus.BAD_REQUEST, [exception.message]];
     } else if (exception instanceof HttpException) {
       const messages = exception.getResponse();
-      errorResult = [
-        exception.getStatus(),
-        Array.isArray(messages) ? messages : [messages['message']],
-      ];
+      errorResult = [exception.getStatus(), Array.isArray(messages) ? messages : [messages['message']]];
     } else {
       errorResult = [HttpStatus.INTERNAL_SERVER_ERROR, ['Something went wrong']];
     }

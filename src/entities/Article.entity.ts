@@ -11,7 +11,7 @@ export class ArticleEntity extends BaseEntity {
 
   @ApiProperty({ example: 1 })
   @Column({ name: 'source_link', nullable: false })
-  sourceLink: number;
+  sourceLink: string;
 
   @ApiProperty({ example: 1686841959 })
   @Column({ type: 'bigint', nullable: false })
@@ -22,8 +22,7 @@ export class ArticleEntity extends BaseEntity {
   content: string;
 
   @ApiProperty({
-    example:
-      'https://www.rbc.ua/static/img/d/s/dscf0141_enhanced_nr_id92187_1300x867_6_1300x820.jpg',
+    example: 'https://www.rbc.ua/static/img/d/s/dscf0141_enhanced_nr_id92187_1300x867_6_1300x820.jpg',
   })
   @Column()
   image: string;

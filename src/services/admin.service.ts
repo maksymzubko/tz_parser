@@ -45,6 +45,6 @@ export class AdminService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const admin = await this.createAdmin(randomName, hashedPassword);
-    return { username: admin.username, password: admin.password };
+    return { username: admin.username, password };
   }
 }

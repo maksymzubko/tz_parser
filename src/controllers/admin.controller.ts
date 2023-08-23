@@ -1,5 +1,5 @@
 import { Controller, Post } from '@nestjs/common';
-import { ApiInternalServerErrorResponse, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiCreatedResponse, ApiInternalServerErrorResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AdminService } from '@services/admin.service';
 import { ResponseDto } from '@services/dto/response.dto';
 import { AdminResponseDto } from '@services/dto/admin/response.dto';
@@ -14,7 +14,7 @@ export class AdminController {
     summary: 'Generate admin',
     description: '!ONLY FOR TEST!',
   })
-  @ApiOkResponse({ type: AdminResponseDto })
+  @ApiCreatedResponse({ type: AdminResponseDto })
   @ApiInternalServerErrorResponse({ type: ResponseDto })
   generateNew(): Promise<AdminResponseDto> {
     return this._adminService.generateNew();

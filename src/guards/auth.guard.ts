@@ -37,11 +37,13 @@ export class AuthGuard implements CanActivate {
               const decoded = this.jwtService.decode(token, { json: true });
               if (decoded['username'] && decoded['sub']) {
                 const newToken = this.jwtService.sign({ username: decoded['username'], sub: decoded['sub'] });
+                const date = new Date();
+                date.setDate(date.getDate() + 1);
                 response.cookie('access_token_tz_demo', newToken, {
-                  httpOnly: true,
+                  httpOnly: false,
                   secure: false,
                   sameSite: 'lax',
-                  expires: new Date(Date.now() + 24 * 60 * 1000),
+                  expires: date,
                 });
                 resolve(decoded);
               }

@@ -72,7 +72,6 @@ export class ArticleController {
   })
   @ApiCreatedResponse({ type: ArticleResponseDto })
   @ApiBadRequestResponse({ type: ResponseDto })
-  @ApiNotFoundResponse({ type: ResponseDto })
   @ApiInternalServerErrorResponse({ type: ResponseDto })
   async createArticle(@Body() body: ArticleRequestDto): Promise<ArticleResponseDto> {
     return await this._articleService.create(body);

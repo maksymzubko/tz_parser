@@ -10,6 +10,11 @@ import { EntityValidationException } from '@exceptions/entity-validation-excepti
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('v1');
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  })
   app.use(json({ limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ transform: true, exceptionFactory: (errors: ValidationError[]) => new EntityValidationException(errors) }));
   app.useGlobalFilters(new AllExceptionsFilter());

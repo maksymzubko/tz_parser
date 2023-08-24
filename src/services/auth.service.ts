@@ -14,11 +14,20 @@ export class AuthService {
 
   async login(loginData: LoginRequestDto): Promise<LoginResponseDto> {
     const user = await this._adminService.validateAdmin(loginData.username, loginData.password);
-    if (!user) throw new ExceptionUnauthorized('Incorrect user data!');
+    if (!user) throw new ExceptionUnauthorized({field: 'password', message: 'Incorrect user data!'});
 
     const payload = { username: user.username, sub: user.id };
     return {
       access_token: this._jwtService.sign(payload),
     };
+  }
+
+  async verify(header: string) : Promise<boolean> {
+    if(!header || !header.length) return false
+
+    const token = header.split(' ')[1];
+    if(!token) return false;
+    const result = await this._jwtService.verifyAsync(token);
+    return !!result;
   }
 }

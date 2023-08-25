@@ -27,7 +27,7 @@ export class AdminService {
   async validateAdmin(username: string, password: string): Promise<AdminEntity | null> {
     const admin = await this.findUserByUsername(username);
 
-    if (!admin) throw new ExceptionNotFound('User with this username not found!');
+    if (!admin) throw new ExceptionNotFound({ field: 'username', message: 'User with this username not found!' });
 
     const isValidPassword = await bcrypt.compare(password, admin.password);
 

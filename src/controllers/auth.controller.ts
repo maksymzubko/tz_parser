@@ -1,16 +1,10 @@
-import { Body, Controller, Get, Post, Req, Res } from "@nestjs/common";
+import { Body, Controller, Get, Post, Req, Res } from '@nestjs/common';
 import { AuthService } from '@services/auth.service';
-import {
-  ApiCreatedResponse,
-  ApiForbiddenResponse,
-  ApiInternalServerErrorResponse,
-  ApiOperation,
-  ApiTags
-} from "@nestjs/swagger";
+import { ApiCreatedResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { ResponseDto } from '@services/dto/response.dto';
 import { LoginRequestDto } from '@services/dto/auth/request.dto';
 import { LoginResponseDto } from '@services/dto/auth/response.dto';
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
 @Controller('auth')
 @ApiTags('auth')
@@ -47,8 +41,7 @@ export class AuthController {
   @ApiInternalServerErrorResponse({ type: ResponseDto })
   async verifyToken(@Req() req: Request): Promise<boolean> {
     const dataArray = req.headers.authorization?.split(' ');
-    if(dataArray?.length !== 2)
-      return false;
+    if (dataArray?.length !== 2) return false;
     return await this._authService.verify(dataArray.at(1));
   }
 }

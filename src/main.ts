@@ -14,7 +14,7 @@ async function bootstrap() {
     origin: true,
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true,
-  })
+  });
   app.use(json({ limit: '10mb' }));
   app.useGlobalPipes(new ValidationPipe({ transform: true, exceptionFactory: (errors: ValidationError[]) => new EntityValidationException(errors) }));
   app.useGlobalFilters(new AllExceptionsFilter());

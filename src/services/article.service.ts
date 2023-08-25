@@ -10,7 +10,7 @@ import { PageMetaDtoArticles } from '@services/dto/article/page-meta.dto';
 import { PageOptionsArticlesDto } from '@services/dto/article/page-options.dto';
 import { ExceptionNotFound } from '@exceptions/http.exceptions';
 import { ArticleRequestDto } from '@services/dto/article/request.dto';
-import { Cron } from "@nestjs/schedule";
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ArticleService {
@@ -25,7 +25,7 @@ export class ArticleService {
   }
 
   async getById(id: number): Promise<ArticleEntity | null> {
-    return await this._articleRepository.findOne({ where: { id }, relations: ['categories']});
+    return await this._articleRepository.findOne({ where: { id }, relations: ['categories'] });
   }
 
   async getByLink(link: string): Promise<ArticleEntity | null> {
@@ -42,10 +42,8 @@ export class ArticleService {
 
   async getArticles(pageOptionsDto: PageOptionsArticlesDto): Promise<PageDto<ArticleResponseDto, PageMetaDtoArticles>> {
     let where = ``;
-    if(pageOptionsDto.search && pageOptionsDto.search.length)
-      where += `(a.title like :search OR a.content like :search)`
-    if(pageOptionsDto.category && pageOptionsDto.category.length)
-      where += `${pageOptionsDto.search ? 'AND c.name = :name' : 'c.name = :name'}`
+    if (pageOptionsDto.search && pageOptionsDto.search.length) where += `(a.title like :search OR a.content like :search)`;
+    if (pageOptionsDto.category && pageOptionsDto.category.length) where += `${pageOptionsDto.search ? 'AND c.name = :name' : 'c.name = :name'}`;
 
     console.log(where);
     const [result, itemCount] = await this._articleRepository
@@ -109,7 +107,7 @@ export class ArticleService {
     return true;
   }
 
-  @Cron("30 * * * * *")
+  @Cron('30 * * * * *')
   async parse(): Promise<any> {
     const items = (await this._parser.parseURL('https://www.rbc.ua/static/rss/ukrnet.strong.ukr.rss.xml'))?.items;
     console.log(items.length);

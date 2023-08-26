@@ -26,7 +26,7 @@ export class AuthGuard implements CanActivate {
       throw new ExceptionUnauthorized("Accept only 'Bearer' tokens!");
     }
     try {
-      request['user'] = new Promise(async (resolve, reject) => {
+      request['user'] = await new Promise(async (resolve, reject) => {
         await this.jwtService
           .verifyAsync(token, {
             secret: process.env.JWT_SECRET,
@@ -48,7 +48,7 @@ export class AuthGuard implements CanActivate {
                 resolve(decoded);
               }
             }
-            reject(err);
+            reject(new ExceptionUnauthorized('Incorrect token!'));
           });
       });
     } catch {

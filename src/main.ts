@@ -6,7 +6,7 @@ import { json } from 'express';
 import { ValidationPipe } from '@nestjs/common';
 import { ValidationError } from 'class-validator';
 import { EntityValidationException } from '@exceptions/entity-validation-exception';
-import * as process from "process";
+import * as process from 'process';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

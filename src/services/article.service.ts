@@ -110,7 +110,7 @@ export class ArticleService {
   @Cron('30 * * * * *')
   async parse(): Promise<any> {
     const items = (await this._parser.parseURL('https://www.rbc.ua/static/rss/ukrnet.strong.ukr.rss.xml'))?.items;
-    console.log(items.length);
+
     if (items) {
       for (const item of items) {
         const { title, categories, link, enclosure, isoDate } = item;

@@ -47,6 +47,6 @@ $ npm install
 $ npm run typeorm migration:run
 ```
 ```bash
-# development
+# run app
 $ npm run start
 ```

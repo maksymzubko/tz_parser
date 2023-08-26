@@ -22,12 +22,12 @@ export class AuthService {
     };
   }
 
-  async verify(header: string): Promise<boolean> {
-    if (!header || !header.length) return false;
+  async verify(token: string): Promise<boolean> {
+    if (!token || !token.length) throw new ExceptionUnauthorized('Invalid token');
 
-    const token = header.split(' ')[1];
-    if (!token) return false;
     const result = await this._jwtService.verifyAsync(token);
-    return !!result;
+    if (!result) {
+      throw new ExceptionUnauthorized('Invalid token');
+    } else return true;
   }
 }

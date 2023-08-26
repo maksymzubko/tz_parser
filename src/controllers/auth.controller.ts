@@ -22,7 +22,6 @@ export class AuthController {
     const result = await this._authService.login(loginData);
     const date = new Date();
     date.setDate(date.getDate() + 1);
-    console.log(date);
     res.cookie('access_token_tz_demo', result.access_token, {
       httpOnly: false,
       secure: false,
